@@ -8,8 +8,6 @@ android {
         minSdkVersion 21
         // 目标适配版本
         targetSdkVersion 30
-        versionName '1.0'
-        versionCode 10
     }
 
     // 支持 Java JDK 8
@@ -47,10 +45,21 @@ android {
 afterEvaluate {
     // 前提条件是这个 Module 工程必须是 Library 类型，并且排除名为 umeng 的 Module 工程
     if (android.defaultConfig.applicationId == null && "umeng" != getName()) {
-        // 排除 BuildConfig.class
-        generateReleaseBuildConfig.enabled = false
-        generatePreviewBuildConfig.enabled = false
-        generateDebugBuildConfig.enabled = false
+        // 排除 BuildConfig.class（仅在任务存在时禁用）
+        // 注意：在 AGP 8.0+ 中，BuildConfig 默认禁用，Library 模块不需要此配置
+        try {
+            if (tasks.findByName('generateReleaseBuildConfig')) {
+                generateReleaseBuildConfig.enabled = false
+            }
+            if (tasks.findByName('generatePreviewBuildConfig')) {
+                generatePreviewBuildConfig.enabled = false
+            }
+            if (tasks.findByName('generateDebugBuildConfig')) {
+                generateDebugBuildConfig.enabled = false
+            }
+        } catch (Exception ignored) {
+            // 忽略任务不存在的异常
+        }
     }
 }
 
